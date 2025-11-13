@@ -1,7 +1,5 @@
-Ariel-ML: Machine Learning Support for [Ariel OS](https://github.com/ariel-os/ariel-os/)
+Ariel-ML: Machine Learning Support with IREE for [Ariel OS](https://github.com/ariel-os/ariel-os/)
 ===
-
-**!! Caution: Under construction, do not use in production !!**
 
 
 Installing the prerequisites
@@ -18,9 +16,9 @@ Installing the prerequisites
 1. **Set up Ariel OS**
    Follow the [official installation guide](https://ariel-os.github.io/ariel-os/dev/docs/book/getting-started.html#installing-the-build-prerequisites).
 
-2. **Set up Eerie**
-   We use a variant of Eerie: [zhaolanhuang/eerie](https://github.com/zhaolanhuang/eerie).
-   Clone the repository and switch to the `wip/ariel_ml` branch:
+2. **Set up IREE**
+   We use a the Rust binding of IREE, provided by [eerie](https://github.com/zhaolanhuang/eerie):
+   Clone the [eerie](https://github.com/zhaolanhuang/eerie) repository and switch to the `wip/ariel_ml` branch:
 
    ```bash
    git switch wip/ariel_ml
@@ -93,9 +91,3 @@ To run it successfully, change the Eerie dependency features in `Cargo.toml` to:
 eerie = { path = "/path/to/eerie", features = ["runtime, std"], default-features = false}
 ```
 
-
-References
----
-
-- [Ariel OS](https://github.com/ariel-os/ariel-os/)
-- [Eerie: Rustic bindings to the IREE Compiler/Runtime](https://github.com/gmmyung/eerie) and the [variant](https://github.com/zhaolanhuang/eerie) adapted for Ariel OS.
