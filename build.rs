@@ -32,6 +32,11 @@ fn main() {
         println!("cargo:rustc-link-arg=--config={}", clang_config_path);
     }
    
+    if context.contains("native") {
+        println!("cargo:rustc-link-arg=--gcc-toolchain=/usr");
+    }
+
+
     //TODO: add support for more cpus, and libm support for generic.
     if context.contains("cortex-m4f") || context.contains("cortex-m4") {
         target_cpu = "cortex-m4";
