@@ -27,6 +27,11 @@ fn main() {
     
     let mut cpu_features = "";
 
+    let clang_config_path = std::env::var("CLANG_CONFIG_PATH").unwrap();
+    if !clang_config_path.as_str().is_empty() {
+        println!("cargo:rustc-link-arg=--config={}", clang_config_path);
+    }
+   
     //TODO: add support for more cpus, and libm support for generic.
     if context.contains("cortex-m4f") || context.contains("cortex-m4") {
         target_cpu = "cortex-m4";

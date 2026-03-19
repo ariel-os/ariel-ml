@@ -6,3 +6,10 @@ config-include = true
 
 [env]
 IREE_PATH = { value = "../iree", relative = true }
+
+# native
+CLANG_CONFIG_PATH = ""
+
+# cortex-m
+#CLANG_CONFIG_PATH = { value = "../arm-toolchain-newlib-nano-20.1.0/bin/newlib-nano.cfg", relative = true }
+
