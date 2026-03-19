@@ -16,14 +16,16 @@ eerie = { path = "../eerie", features = ["runtime"], default-features = false}
 
 
 [features]
-default = ["mcunet_10fps_vww", "static", "quantized", "multicore", "emitc"]
+# For now static, emitc, multi-core is MUST.
+default = ["static", "emitc", "multi-core"]
+static = []
+emitc = []
+multi-core = []
+quantized = []
+
 mnist = []
 simple_mul = []
 resnet50 = []
-static = []
-emitc = []
-lenet5 = []
-mbv1_vww_96 = []
-quantized = []
-multicore = []
-mcunet_10fps_vww = []
+lenet5 = ["quantized"]
+mbv1_vww_96 = ["quantized"]
+mcunet_10fps_vww = ["quantized"]

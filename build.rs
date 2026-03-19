@@ -194,6 +194,7 @@ fn main() {
                .target(&target)
                .include(&include_dir)
                .define("EMITC_IMPLEMENTATION", None)
+               .warnings(false)
                .flags(vec![              
                 "-DIREE_PLATFORM_GENERIC=1",
                 "-fno-stack-protector",
@@ -204,13 +205,15 @@ fn main() {
 
     }
 
-    #[cfg(feature= "multicore")]
+    #[cfg(feature= "multi-core")]
     {
+        println!("cargo::warning=ariel-os multi-core auto-enabled!");
         println!("cargo::rerun-if-changed=contrib/iree_workgroup_dispatch.c");
         let mut c_build = cc::Build::new();
         c_build.file("contrib/iree_workgroup_dispatch.c")
                .target(&target)
                .include(&include_dir)
+               .warnings(false)
                .flags(vec![              
                 "-DIREE_PLATFORM_GENERIC=1", 
                 "-fno-stack-protector", 

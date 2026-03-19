@@ -566,11 +566,12 @@ fn main() {
         ariel_os::buildinfo::BOARD
     );
 
+    static MODEL_BYTECODE: [u8 ; 1] = [0 ; 1];
     #[cfg(feature = "resnet50")]
     {
         info!("Selected model: resnet50.");
         let image_bin: [f32; 224*224*3] = [1.0; 224*224*3];
-        static MODEL_BYTECODE: &[u8] = include_aligned!(16, "../resnet50.vmfb");
+//        static MODEL_BYTECODE: &[u8] = include_aligned!(16, "../resnet50.vmfb");
         // info!("main, vmfb pointer: {:p}", MODEL_BYTECODE.as_ptr());
         let output = run_resnet50(&MODEL_BYTECODE, &image_bin);
         output.iter().for_each(|x| info!("output:{}", x));
@@ -581,7 +582,7 @@ fn main() {
     #[cfg(feature = "simple_mul")]
     {
         info!("Selected model: simple_mul.");
-        static  MODEL_BYTECODE: &[u8] = include_aligned!(16, "../simple_mul.vmfb");
+//        static  MODEL_BYTECODE: &[u8] = include_aligned!(16, "../simple_mul.vmfb");
         let a = [1.0, 2.0, 3.0, 4.0];
         let b = [1.0, 2.0, 3.0, 4.0];
         // info!("main, vmfb pointer: {:p}", MODEL_BYTECODE.as_ptr());
@@ -595,7 +596,7 @@ fn main() {
     {
         info!("Selected model: mnist.");
         let image_bin: [f32; 28*28*1] = [1.0; 28*28*1];
-        static MODEL_BYTECODE: &[u8] = include_aligned!(16, "../mnist.vmfb");
+//        static MODEL_BYTECODE: &[u8] = include_aligned!(16, "../mnist.vmfb");
         // info!("main, vmfb pointer: {:p}", MODEL_BYTECODE.as_ptr());
         let output = run_mnist(&MODEL_BYTECODE, &image_bin);
         output.iter().for_each(|x| info!("output:{}", x));
@@ -608,14 +609,14 @@ fn main() {
 
 //        #[cfg(feature = "quantized")]
 //        {
-            static MODEL_BYTECODE: &[u8] = include_aligned!(16, "../lenet5_quantized.vmfb");
+//            static MODEL_BYTECODE: &[u8] = include_aligned!(16, "../lenet5_quantized.vmfb");
 //        }
 
 //        #[cfg(not(feature = "quantized"))]
 //        {
 //            static MODEL_BYTECODE: &[u8] = include_aligned!(16, "../lenet5_float.vmfb");
 //        }
-//        
+        
         // info!("main, vmfb pointer: {:p}", MODEL_BYTECODE.as_ptr());
         let time_begin_us = time::Instant::now().as_micros();
         let output = run_lenet5_float(&MODEL_BYTECODE, &image_bin);
@@ -629,8 +630,6 @@ fn main() {
         info!("Selected model: mbv1_vww_96.");
         let image_bin: [u8; 96*96*3] = [1; 96*96*3];
 
-        static MODEL_BYTECODE: [u8 ; 1] = [0 ; 1];
-
         let time_begin_us = time::Instant::now().as_micros();
         let output = run_mbv1_vww_96(&MODEL_BYTECODE, &image_bin);
         let time_end_us = time::Instant::now().as_micros();
@@ -642,8 +641,6 @@ fn main() {
     {
         info!("Selected model: mcunet_10fps_vww.");
         let image_bin: [u8; 64*64*3] = [1; 64*64*3];
-
-        static MODEL_BYTECODE: [u8 ; 1] = [0 ; 1];
 
         let time_begin_us = time::Instant::now().as_micros();
         let output = run_mcunet_10fps_vww(&MODEL_BYTECODE, &image_bin);
