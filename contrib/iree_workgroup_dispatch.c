@@ -71,7 +71,7 @@ job_state_t job_states[N_JOBS] = {0};
 extern void begin_record_op_latency();
 extern void end_record_op_latency();
 
-iree_status_t iree_hal_local_executable_issue_dispatch_inline(
+iree_status_t __wrap_iree_hal_local_executable_issue_dispatch_inline(
     iree_hal_local_executable_t* executable, iree_host_size_t ordinal,
     const iree_hal_executable_dispatch_state_v0_t* dispatch_state,
     uint32_t processor_id, iree_byte_span_t local_memory) {

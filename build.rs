@@ -218,6 +218,7 @@ fn main() {
                
         let obj_files = c_build.compile_intermediates();
         obj_files.iter().for_each(|x|  println!("cargo:rustc-link-arg={}", x.display()) );
+        println!("cargo:rustc-link-arg=-Wl,--wrap=iree_hal_local_executable_issue_dispatch_inline");
 
     }
 
