@@ -1,10 +1,25 @@
+# /// script
+# requires-python = ">=3.10, <3.14"
+# dependencies = [
+#   "tensorflow",
+#   "transformers[tf]<5.0",
+#   "safetensors<0.4.0",
+#   "Pillow",
+#   "iree-compiler",
+#   "iree-tools-tf",
+# ]
+# ///
+
 import tensorflow as tf
 from transformers import AutoImageProcessor, TFResNetForImageClassification
 import sys
+import shutil
 from PIL import Image
 import os
 from iree.compiler import tf as tfc
-import inspect
+
+ARTIFACTS_DIR = "../build/mlir_artifacts"
+os.makedirs(ARTIFACTS_DIR, exist_ok=True)
 
 # Download model and preprocessor from HuggingFace
 processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
@@ -16,19 +31,13 @@ image = Image.open(file_name).convert("RGB")
 processed_image = processor(image, return_tensors="np")
 
 # save raw bytes to file
-new_file_name = file_name.split('.')[0] + '.bin'
-try:
-    os.remove(new_file_name)
-except OSError:
-    pass
-with open(new_file_name, "wb") as f:
+bin_name = os.path.splitext(os.path.basename(file_name))[0] + '.bin'
+bin_path = os.path.join(ARTIFACTS_DIR, bin_name)
+with open(bin_path, "wb") as f:
     f.write(processed_image['pixel_values'].tobytes())
 
-# save model as saved_modelv2
-try:
-    os.rmdir("resnet50")
-except OSError:
-    pass
+saved_model_dir = os.path.join(ARTIFACTS_DIR, "resnet50")
+shutil.rmtree(saved_model_dir, ignore_errors=True)
 
 # fix model input shape to 1, 3, 224, 224
 def model_exporter(model: tf.keras.Model):
@@ -44,22 +53,18 @@ def model_exporter(model: tf.keras.Model):
 
     return serving_fn
 
-model.save_pretrained("resnet50", saved_model=True, signatures={'serving_default': model_exporter(model)})
+model.save_pretrained(saved_model_dir, saved_model=True, signatures={'serving_default': model_exporter(model)})
 
 # save id2label
-try:
-    os.remove("id2label.txt")
-except OSError:
-    pass
-with open("id2label.txt", "w") as f:
+with open(os.path.join(ARTIFACTS_DIR, "id2label.txt"), "w") as f:
     for i in range(len(model.config.id2label)):
         f.write(model.config.id2label[i] + '\n')
 
-# iree-tools-tf --tf-import-type=savedmodel_v1 ./resnet50/saved_model/1/ -o resnet50.mlir
-import subprocess
-subprocess.run(["iree-import-tf", 
-    "--tf-import-type=savedmodel_v1", 
-    "--tf-savedmodel-exported-names=serving_default", 
-    "./resnet50/saved_model/1/", 
-    "-o", 
-    "resnet50.mlir"])
+os.makedirs("../compiled_models", exist_ok=True)
+mlir_bytes = tfc.compile_saved_model(
+    os.path.join(saved_model_dir, "saved_model", "1"),
+    import_only=True,
+    exported_names=["serving_default"],
+)
+with open("../compiled_models/resnet50.mlir", "wb") as f:
+    f.write(mlir_bytes)
