@@ -2,6 +2,9 @@ use cc;
 use std::path::PathBuf;
 
 
+const EMITC_FOLDER: &str = "build/emitc";
+const MODELS_FOLDER: &str = "compiled_models";
+
 fn main() {
     // Rerun if target changes
     println!("cargo:rerun-if-env-changed=TARGET");
@@ -139,17 +142,19 @@ fn main() {
     println!("cargo:rustc-env=IREE_LIB_QUERY_FN_NAME={}", query_fn_name);
     
 
-    println!("cargo::rerun-if-changed={}.mlir", model_name);
+    println!("cargo::rerun-if-changed={}/{}.mlir", MODELS_FOLDER, model_name);
     println!("cargo::rerun-if-changed={}.vmfb", model_name);
     println!("cargo::rerun-if-changed={}.o", model_name);
 
+    #[cfg(any(feature = "emitc", feature = "static"))]
+    std::fs::create_dir_all(EMITC_FOLDER).expect("Failed to create emitc output directory");
 
     #[cfg(feature = "static")] 
     {
         iree_compile_flags.push("--iree-llvmcpu-link-embedded=false".into());
         iree_compile_flags.push("--iree-llvmcpu-link-static".into());
-        iree_compile_flags.push(format!("--iree-llvmcpu-static-library-output-path={}", model_name.to_string() + ".o"));
-        println!("cargo:rustc-link-arg={}", model_name.to_string() + ".o");
+        iree_compile_flags.push(format!("--iree-llvmcpu-static-library-output-path={}/{}.o", EMITC_FOLDER, model_name));
+        println!("cargo:rustc-link-arg={}/{}.o", EMITC_FOLDER, model_name);
     }
 
     #[cfg(feature = "emitc")]
@@ -166,14 +171,14 @@ fn main() {
 
     #[cfg(not(feature= "emitc"))]
     iree_compile_flags.extend(vec![
-        model_name.to_string()  + ".mlir", 
+        format!("{}/{}.mlir", MODELS_FOLDER, model_name),
         "-o".into(), model_name.to_string()  + ".vmfb",
     ]);
 
     #[cfg(feature= "emitc")]
     iree_compile_flags.extend(vec![
-        model_name.to_string()  + ".mlir", 
-        "-o".into(), model_name.to_string()  + "_emitc.c",
+        format!("{}/{}.mlir", MODELS_FOLDER, model_name),
+        "-o".into(), format!("{}/{}_emitc.c", EMITC_FOLDER, model_name),
     ]);
     
     println!("iree compile flags: {:?}", iree_compile_flags);
@@ -190,7 +195,7 @@ fn main() {
     #[cfg(feature= "emitc")]
     {
         let mut c_build = cc::Build::new();
-        c_build.file(model_name.to_string()  + "_emitc.c")
+        c_build.file(format!("{}/{}_emitc.c", EMITC_FOLDER, model_name))
                .target(&target)
                .include(&include_dir)
                .define("EMITC_IMPLEMENTATION", None)

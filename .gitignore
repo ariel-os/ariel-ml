@@ -230,3 +230,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+compiled_models/resnet50.mlir
+# too large to commit, can be rebuilt with source_models/load_mlir.py
